@@ -4,6 +4,8 @@ pipeline {
     environment {
         APP_ENV = 'dev'
         NODE_VERSION = '20'
+        PROJECT_NAME = "striff"
+
     }
 
     options {
@@ -27,7 +29,7 @@ pipeline {
             steps {
                 sh '''
                 echo "setting up the local setup"
-                sudo groupadd $PROJECT_NAME || echo 'group exists'
+                "sudo groupadd \"${PROJECT_NAME}\" || echo 'group exists'"
                 '''
             }
         }
