@@ -18,7 +18,6 @@ pipeline {
             }
         }
 
-      stages {
         stage('Load Env') {
             steps {
                 script {
@@ -35,7 +34,7 @@ pipeline {
             }
         }
 
-      stage('Setup') {
+        stage('Setup') {
             steps {
                 sh '''
                 echo "setting up the local setup"
@@ -52,6 +51,4 @@ pipeline {
             }
         }
     }
-}
-
 }
