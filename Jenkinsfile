@@ -28,8 +28,8 @@ pipeline {
       stage('Setup') {
             steps {
                 sh '''
-                echo "setting up the local setup"
-                "sudo groupadd "env.$PROJECT_NAME" || echo 'group exists'"
+                    echo "setting up the local setup"
+                    sudo groupadd "env.${PROJECT_NAME}" || echo "group exists"
                 '''
             }
         }
