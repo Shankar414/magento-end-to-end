@@ -1,0 +1,98 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: ${MYSQL_IMAGE}
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - MARIADB_DATABASE=${MAGENTO_DB_NAME}
+      - MARIADB_USER=${MAGENTO_DB_USER}
+      - MARIADB_PASSWORD=${MAGENTO_DB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=${MAGENTO_DB_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - magento
+
+  redis:
+    image: ${REDIS_IMAGE}
+    container_name: ${REDIS_CONTAINER_NAME}
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    volumes:
+      - redis_data:/data
+    networks:
+      - magento
+
+  elasticsearch:
+    image: ${ELASTICSEARCH_IMAGE}
+    container_name: ${ELASTICSEARCH_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - magento
+
+  fpm:
+    image: ${FPM_IMAGE}
+    container_name: ${FPM_CONTAINER_NAME}
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - MAGENTO_DB_HOST=mysql
+      - MAGENTO_DB_NAME=${MAGENTO_DB_NAME}
+      - MAGENTO_DB_USER=${MAGENTO_DB_USER}
+      - MAGENTO_DB_PASSWORD=${MAGENTO_DB_PASSWORD}
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - app:/var/www/html
+    networks:
+      - magento
+
+  nginx:
+    image: ${NGINX_IMAGE}
+    container_name: ${NGINX_CONTAINER_NAME}
+    restart: unless-stopped
+    depends_on:
+      - fpm
+    env_file:
+      - ./.env
+    volumes:
+      - app:/var/www/html:ro
+    networks:
+      - magento
+      - proxy
+    labels:
+      - traefik.enable=${TRAEFIK_ENABLE}
+      - traefik.docker.network=${TRAEFIK_DOCKER_NETWORK}
+      - traefik.http.routers.${PROJECT_NAME}.rule=Host(`${MAGENTO_HOST}`)
+      - traefik.http.routers.${PROJECT_NAME}.entrypoints=${TRAEFIK_ENTRYPOINTS}
+      - traefik.http.routers.${PROJECT_NAME}.tls=${TRAEFIK_ENABLE_TLS}
+      - traefik.http.routers.${PROJECT_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}
+      - traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=${TRAEFIK_SERVICE_PORT}
+      - traefik.http.middlewares.${PROJECT_NAME}-sec.headers.stsSeconds=${TRAEFIK_STS_SECONDS}
+      - traefik.http.middlewares.${PROJECT_NAME}-sec.headers.stsIncludeSubdomains=${TRAEFIK_STS_INCLUDE_SUBDOMAINS}
+      - traefik.http.middlewares.${PROJECT_NAME}-sec.headers.stsPreload=${TRAEFIK_STS_PRELOAD}
+      - traefik.http.routers.${PROJECT_NAME}.middlewares=${PROJECT_NAME}-sec@docker
+
+networks:
+  proxy:
+    external: true
+  magento:
+    driver: bridge
+
+volumes:
+  app:
+  mysql_data:
+  redis_data:
+  elasticsearch_data:
