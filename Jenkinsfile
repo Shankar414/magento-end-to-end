@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        APP_ENV = 'dev'
-        NODE_VERSION = '20'
-        PROJECT_NAME = "striff"
-
-    }
-
     options {
         timeout(time: 20, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '5'))
@@ -25,6 +18,23 @@ pipeline {
             }
         }
 
+      stages {
+        stage('Load Env') {
+            steps {
+                script {
+                    def envVars = readFile('.env').trim()
+                    envVars.split("\n").each { line ->
+                        def pair = line.split('=')
+                        if (pair.length == 2) {
+                            // export environment variables dynamically
+                            env."${pair[0]}" = pair[1]
+                        }
+                    }
+                }
+                echo "PROJECT_NAME is ${env.PROJECT_NAME}"
+            }
+        }
+
       stage('Setup') {
             steps {
                 sh '''
@@ -36,8 +46,12 @@ pipeline {
                 sudo usermod -aG "$PROJECT_NAME" jenkins
                 sudo usermod -aG "$PROJECT_NAME" ubuntu
                 sudo usermod -aG docker "$PROJECT_NAME"
+                sudo mkdir -p "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+
                 '''
             }
         }
     }
+}
+
 }
