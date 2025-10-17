@@ -26,7 +26,7 @@ pipeline {
       stage('Setup') {
             steps {
                 sh '''
-                echo "settinh up the local setup"
+                echo "setting up the local setup"
                 sudo groupadd $PROJECT_NAME || echo 'group exists'
                 '''
             }
