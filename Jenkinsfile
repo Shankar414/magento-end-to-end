@@ -30,6 +30,9 @@ pipeline {
                 sh '''
                 echo "setting up the local setup"
                 sudo groupadd "$PROJECT_NAME" || echo "group exists"
+                sudo useradd -m "$PROJECT_NAME" -g "$PROJECT_NAME" || echo "user exists"
+                sudo chmod 770 "/home/$PROJECT_NAME"
+                sudo chmod 770 "/home/$PROJECT_NAME"
                 '''
             }
         }
