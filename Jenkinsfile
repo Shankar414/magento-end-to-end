@@ -2,12 +2,14 @@ pipeline {
     agent any
 
     options {
-        timeout(time: 20, unit: 'MINUTES')
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+      timeout(time: 20, unit: 'MINUTES')
+      buildDiscarder(logRotator(numToKeepStr: '5'))
+      disableConcurrentBuilds()
     }
 
     parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
+      string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
+      booleanParam(name: 'RUN_INSTALL', defaultValue: false, description: 'Run Magento install/configure steps')
     }
 
     environment {
@@ -40,7 +42,11 @@ pipeline {
         }
 
         stage('Magento-default-Setup') {
+            when { expression { return params.RUN_INSTALL } }
             steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    input message: 'Proceed with Magento install? This will modify the environment.'
+                }
                 script {
                     // Setup local users, groups, permissions
                     sh """
