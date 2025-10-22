@@ -56,6 +56,13 @@ pipeline {
         '''
         dir("/home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}") {
             git branch: 'main', url: "${env.GIT_URL}"
+        
+        sh '''
+            cd /home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}
+            docker-compose pull
+            docker-compose up -d
+        '''
+
         }
     }
 }
