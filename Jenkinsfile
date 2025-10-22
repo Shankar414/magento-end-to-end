@@ -79,6 +79,7 @@ pipeline {
     sh '''
         docker compose pull
         docker compose up -d
+        docker compose exec php-fpm bash -lc 'php -v && composer --version'
     '''
                 }
             }
