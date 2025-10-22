@@ -10,11 +10,15 @@ pipeline {
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
     }
 
+    environment {
+        GIT_URL = 'https://github.com/Shankar414/magento-end-to-end.git' // define once for reuse
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 echo "Checking out branch: ${params.BRANCH_NAME}"
-                git branch: "${params.BRANCH_NAME}", url: 'https://github.com/Shankar414/magento-end-to-end.git'
+                git branch: "${params.BRANCH_NAME}", url: "${env.GIT_URL}"
             }
         }
 
@@ -22,10 +26,9 @@ pipeline {
             steps {
                 script {
                     def envVars = readFile('.env').trim()
-                    envVars.split("\n").each { line ->
+                    envVars.split('\n').each { line ->
                         def pair = line.split('=')
                         if (pair.length == 2) {
-                            // export environment variables dynamically
                             env."${pair[0]}" = pair[1]
                         }
                     }
@@ -35,37 +38,37 @@ pipeline {
         }
 
         stage('Setup') {
-    steps {
-        sh '''
-            set -e
-            echo "setting up the local setup"
-            sudo groupadd "$PROJECT_NAME" || echo "group exists"
-            sudo useradd -m "$PROJECT_NAME" -g "$PROJECT_NAME" || echo "user exists"
-            sudo chmod 770 "/home/$PROJECT_NAME"
-            sudo chmod 770 "/home/$PROJECT_NAME"
-            sudo usermod -aG "$PROJECT_NAME" jenkins
-            sudo usermod -aG "$PROJECT_NAME" ubuntu
-            sudo usermod -aG docker "$PROJECT_NAME"
-            sudo mkdir -p "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
-            sudo chown -R jenkins:striff "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
-            sudo chmod -R 770 "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+            steps {
+                script {
+                    // Setup local users, groups, permissions
+                    sh """
+                        set -e
+                        echo "setting up the local setup"
+                        sudo groupadd "$PROJECT_NAME" || echo "group exists"
+                        sudo useradd -m "$PROJECT_NAME" -g "$PROJECT_NAME" || echo "user exists"
+                        sudo chmod 770 "/home/$PROJECT_NAME"
+                        sudo usermod -aG "$PROJECT_NAME" jenkins
+                        sudo usermod -aG "$PROJECT_NAME" ubuntu
+                        sudo usermod -aG docker "$PROJECT_NAME"
+                        sudo mkdir -p "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+                        sudo chown -R jenkins:striff "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+                        sudo chmod -R 770 "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+                    """
+                    // Mark safe directory for git
+                    sh 'git config --global --add safe.directory /home/striff/striff-dev'
+                }
+                dir("/home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}") {
+                    // Checkout git repo in target directory
+                    git branch: "${params.BRANCH_NAME}", url: "${env.GIT_URL}"
 
-        '''
-        sh '''
-            git config --global --add safe.directory /home/striff/striff-dev
-        '''
-        dir("/home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}") {
-            git branch: 'main', url: "${env.GIT_URL}"
-        
-        sh '''
-            cd /home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}
-            docker-compose pull
-            docker-compose up -d
-        '''
-
+                    // Bring up docker containers
+                    sh '''
+                        #!/bin/bash
+                        docker-compose pull
+                        docker-compose up -d
+                    '''
+                }
+            }
         }
-    }
-}
-
     }
 }
