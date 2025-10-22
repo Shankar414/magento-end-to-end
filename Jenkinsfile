@@ -108,6 +108,8 @@ cd /var/www/html && php bin/magento setup:install  \
  --currency="USD" \
  --timezone="UTC" \
  --use-rewrites=1 \
+ --cleanup-database \
+ --backend-frontname="admin" \
  --search-engine="elasticsearch7" \
  --elasticsearch-host="elasticsearch" \
  --elasticsearch-port=9200 \
