@@ -15,9 +15,9 @@ services:
     networks:
       - magento
 
-  valkey:
-    image: ${VALKEY_IMAGE}
-    container_name: ${PROJECT_NAME}_valkey
+  redis:
+    image: redis:latest
+    container_name: ${PROJECT_NAME}_redis
     restart: unless-stopped
     env_file:
       - ./.env
@@ -50,7 +50,7 @@ services:
       - MAGENTO_DB_PASSWORD=${MAGENTO_DB_PASSWORD}
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
-      - REDIS_HOST=valkey
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
     volumes:
       - app:/var/www/html
