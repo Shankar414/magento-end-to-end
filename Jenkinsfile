@@ -89,6 +89,7 @@ pipeline {
         docker compose exec php-fpm bash -lc 'cp -a temp/. .'
         docker compose exec php-fpm bash -lc 'rm -rf temp'
         docker compose exec php-fpm bash -lc 'composer install --no-interaction --no-progress --no-suggest'
+        docker compose exec php-fpm bash -lc 'chmod -R 770 /var/www/html'
         docker compose exec php-fpm bash -lc "
 cd /var/www/html && \
 php bin/magento setup:install \
