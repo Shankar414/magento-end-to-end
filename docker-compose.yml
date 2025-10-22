@@ -18,7 +18,7 @@ services:
       - magento
 
   redis:
-    image: ${REDIS_IMAGE}
+    image: redis:latest
     container_name: ${REDIS_CONTAINER_NAME}
     restart: unless-stopped
     env_file:
