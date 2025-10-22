@@ -77,8 +77,8 @@ pipeline {
 
     // Now pull and start containers
     sh '''
-        docker-compose pull
-        docker-compose up -d
+        docker compose pull
+        docker compose up -d
     '''
                 }
             }
