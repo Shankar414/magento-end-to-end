@@ -63,25 +63,17 @@ pipeline {
 
                     // Bring up docker containers
                     // Remove existing containers by name
-    sh """
-        #!/bin/bash
-        containers=(
-          \"${PROJECT_NAME}_mysql\"
-          \"${PROJECT_NAME}_redis\"
-          \"${PROJECT_NAME}_elasticsearch\"
-          \"${PROJECT_NAME}_phpfpm\"
-          \"${PROJECT_NAME}_nginx\"
-        )
-
-        for c in \"\${containers[@]}\"; do
-          if docker ps -a --format '{{.Names}}' | grep -q \"^\${c}\$\"; then
-            echo \"Removing container \$c\"
-            docker rm -f \"\$c\"
+    sh '''
+        set -e
+        for c in "${PROJECT_NAME}_mysql" "${PROJECT_NAME}_redis" "${PROJECT_NAME}_elasticsearch" "${PROJECT_NAME}_phpfpm" "${PROJECT_NAME}_nginx"; do
+          if docker ps -a --format '{{.Names}}' | grep -q "^${c}$"; then
+            echo "Removing container ${c}"
+            docker rm -f "${c}"
           else
-            echo \"Container \$c does not exist\"
+            echo "Container ${c} does not exist"
           fi
         done
-    """
+    '''
 
     // Now pull and start containers
     sh '''
