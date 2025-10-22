@@ -35,20 +35,24 @@ pipeline {
         }
 
         stage('Setup') {
-            steps {
-                sh '''
-                echo "setting up the local setup"
-                sudo groupadd "$PROJECT_NAME" || echo "group exists"
-                sudo useradd -m "$PROJECT_NAME" -g "$PROJECT_NAME" || echo "user exists"
-                sudo chmod 770 "/home/$PROJECT_NAME"
-                sudo chmod 770 "/home/$PROJECT_NAME"
-                sudo usermod -aG "$PROJECT_NAME" jenkins
-                sudo usermod -aG "$PROJECT_NAME" ubuntu
-                sudo usermod -aG docker "$PROJECT_NAME"
-                sudo mkdir -p "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
-
-                '''
-            }
+    steps {
+        sh '''
+            set -e
+            echo "setting up the local setup"
+            sudo groupadd "$PROJECT_NAME" || echo "group exists"
+            sudo useradd -m "$PROJECT_NAME" -g "$PROJECT_NAME" || echo "user exists"
+            sudo chmod 770 "/home/$PROJECT_NAME"
+            sudo chmod 770 "/home/$PROJECT_NAME"
+            sudo usermod -aG "$PROJECT_NAME" jenkins
+            sudo usermod -aG "$PROJECT_NAME" ubuntu
+            sudo usermod -aG docker "$PROJECT_NAME"
+            sudo mkdir -p "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+        '''
+        dir("/home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}") {
+            git branch: "${env.GIT_BRANCH}", url: "${env.GIT_URL}"
         }
+    }
+}
+
     }
 }
