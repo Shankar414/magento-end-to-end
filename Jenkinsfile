@@ -46,8 +46,10 @@ pipeline {
             sudo usermod -aG "$PROJECT_NAME" jenkins
             sudo usermod -aG "$PROJECT_NAME" ubuntu
             sudo usermod -aG docker "$PROJECT_NAME"
-            sudo chmod -R 770 /home/striff
             sudo mkdir -p "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+            sudo chown -R jenkins:striff "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+            sudo chmod -R 770 "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
+
         '''
         dir("/home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}") {
             git branch: "${env.GIT_BRANCH}", url: "${env.GIT_URL}"
