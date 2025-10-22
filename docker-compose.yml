@@ -64,7 +64,7 @@ services:
     container_name: ${PROJECT_NAME}_nginx
     restart: unless-stopped
     depends_on:
-      - fpm
+      - php-fpm
     env_file:
       - ./.env
     volumes:
