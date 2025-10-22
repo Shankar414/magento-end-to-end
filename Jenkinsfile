@@ -80,6 +80,15 @@ pipeline {
         docker compose pull
         docker compose up -d
         docker compose exec php-fpm bash -lc 'php -v && composer --version'
+        docker compose exec php-fpm bash -lc 'composer config --global http-basic.repo.magento.com 5be721829782cab5ab5f358283cce348 e3c319f62e2140eb6ac0998897de2244
+'
+        docker compose exec php-fpm bash -lc 'composer config --global repo.magento composer https://repo.magento.com'
+        docker compose exec php-fpm bash -lc 'composer config --global allow-plugins true'
+        docker compose exec php-fpm bash -lc 'rm -rf temp'
+        docker compose exec php-fpm bash -lc 'composer create-project --repository-url=https://repo.magento.com/ magento/project-enterprise-edition=${MAGENTO_VERSION} temp'
+        docker compose exec php-fpm bash -lc 'cp -a temp/. .'
+        docker compose exec php-fpm bash -lc 'rm -rf temp'
+        docker compose exec php-fpm bash -lc 'composer install --no-interaction --no-progress --no-suggest'
     '''
                 }
             }
