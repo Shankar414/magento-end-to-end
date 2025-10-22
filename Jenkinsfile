@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-        stage('Setup') {
+        stage('Magento-default-Setup') {
             steps {
                 script {
                     // Setup local users, groups, permissions
@@ -89,6 +89,36 @@ pipeline {
         docker compose exec php-fpm bash -lc 'cp -a temp/. .'
         docker compose exec php-fpm bash -lc 'rm -rf temp'
         docker compose exec php-fpm bash -lc 'composer install --no-interaction --no-progress --no-suggest'
+        docker compose exec php-fpm bash -lc "
+cd /var/www/html && \
+php bin/magento setup:install \
+ --base-url="https://${MAGENTO_HOST}/" \
+ --db-host='mysql' \
+ --db-name='${MAGENTO_DB_NAME}' \
+ --db-user='${MAGENTO_DB_USER}' \
+ --db-password='${MAGENTO_DB_PASSWORD}' \
+ --admin-firstname=mage \
+ --admin-lastname='admin' \
+ --admin-email=example@gmail.com \
+ --admin-user=mageadmin \
+ --admin-password=changeme \
+ --language='en_US' \
+ --currency='USD' \
+ --timezone='UTC' \
+ --use-rewrites=1 \
+ --search-engine='elasticsearch7' \
+ --elasticsearch-host='elasticsearch' \
+ --elasticsearch-port=9200 \
+ --session-save=redis \
+ --session-save-redis-host='redis' \
+ --session-save-redis-port=6379 \
+ --cache-backend=redis \
+ --cache-backend-redis-server='redis' \
+ --cache-backend-redis-port=6379 \
+ --page-cache=redis \
+ --page-cache-redis-server='redis' \
+ --page-cache-redis-port=6379
+"
     '''
                 }
             }
