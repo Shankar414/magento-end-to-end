@@ -39,7 +39,7 @@ services:
     networks:
       - magento
 
-  fpm:
+  php-fpm:
     image: ${FPM_IMAGE}
     container_name: ${PROJECT_NAME}_phpfpm
     restart: unless-stopped
