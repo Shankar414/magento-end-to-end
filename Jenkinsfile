@@ -82,17 +82,17 @@ pipeline {
                         set -e
                         docker compose pull
                         docker compose up -d
-                        docker compose exec -u www-data php-fpm bash -lc 'php -v && composer --version'
-                        docker compose exec -u www-data php-fpm bash -lc "composer config --global http-basic.repo.magento.com 5be721829782cab5ab5f358283cce348 e3c319f62e2140eb6ac0998897de2244"
-                        docker compose exec -u www-data php-fpm bash -lc 'composer config --global repo.magento composer https://repo.magento.com'
-                        docker compose exec -u www-data php-fpm bash -lc 'composer config --global allow-plugins true'
-                        docker compose exec -u www-data php-fpm bash -lc 'mkdir -p /var/www/html && cd /var/www/html && rm -rf ./* .[^.]* || true'
-                        docker compose exec -u www-data php-fpm bash -lc 'cd /var/www/html && composer create-project --repository-url=https://repo.magento.com/ magento/project-enterprise-edition=${MAGENTO_VERSION} temp'
-                        docker compose exec -u www-data php-fpm bash -lc 'cd /var/www/html && cp -a temp/. .'
-                        docker compose exec -u www-data php-fpm bash -lc 'cd /var/www/html && rm -rf temp'
-                        docker compose exec -u www-data php-fpm bash -lc 'cd /var/www/html && composer install --no-interaction --no-progress --no-suggest'
+                        docker compose exec php-fpm bash -lc 'php -v && composer --version'
+                        docker compose exec php-fpm bash -lc "composer config --global http-basic.repo.magento.com 5be721829782cab5ab5f358283cce348 e3c319f62e2140eb6ac0998897de2244"
+                        docker compose exec php-fpm bash -lc 'composer config --global repo.magento composer https://repo.magento.com'
+                        docker compose exec php-fpm bash -lc 'composer config --global allow-plugins true'
+                        docker compose exec php-fpm bash -lc 'mkdir -p /var/www/html && cd /var/www/html && rm -rf ./* .[^.]* || true'
+                        docker compose exec php-fpm bash -lc 'cd /var/www/html && composer create-project --repository-url=https://repo.magento.com/ magento/project-enterprise-edition=${MAGENTO_VERSION} temp'
+                        docker compose exec php-fpm bash -lc 'cd /var/www/html && cp -a temp/. .'
+                        docker compose exec php-fpm bash -lc 'cd /var/www/html && rm -rf temp'
+                        docker compose exec php-fpm bash -lc 'cd /var/www/html && composer install --no-interaction --no-progress --no-suggest'
                         docker compose exec php-fpm bash -lc 'chmod -R 770 /var/www/html'
-                        docker compose exec -u www-data php-fpm bash -lc "cd /var/www/html && php bin/magento setup:install  --base-url=\"https://${MAGENTO_HOST}/\"  --db-host='mysql'  --db-name='${MAGENTO_DB_NAME}'  --db-user='${MAGENTO_DB_USER}'  --db-password='${MAGENTO_DB_PASSWORD}'  --admin-firstname=mage  --admin-lastname='admin'  --admin-email=example@gmail.com  --admin-user=mageadmin  --admin-password=changeme  --language='en_US'  --currency='USD'  --timezone='UTC'  --use-rewrites=1  --search-engine='elasticsearch7'  --elasticsearch-host='elasticsearch'  --elasticsearch-port=9200  --session-save=redis  --session-save-redis-host='valkey'  --session-save-redis-port=6379  --cache-backend=redis  --cache-backend-redis-server='valkey'  --cache-backend-redis-port=6379  --page-cache=redis  --page-cache-redis-server='valkey'  --page-cache-redis-port=6379"
+                        docker compose exec php-fpm bash -lc "cd /var/www/html && php bin/magento setup:install  --base-url=\"https://${MAGENTO_HOST}/\"  --db-host='mysql'  --db-name='${MAGENTO_DB_NAME}'  --db-user='${MAGENTO_DB_USER}'  --db-password='${MAGENTO_DB_PASSWORD}'  --admin-firstname=mage  --admin-lastname='admin'  --admin-email=example@gmail.com  --admin-user=mageadmin  --admin-password=changeme  --language='en_US'  --currency='USD'  --timezone='UTC'  --use-rewrites=1  --search-engine='elasticsearch7'  --elasticsearch-host='elasticsearch'  --elasticsearch-port=9200  --session-save=redis  --session-save-redis-host='valkey'  --session-save-redis-port=6379  --cache-backend=redis  --cache-backend-redis-server='valkey'  --cache-backend-redis-port=6379  --page-cache=redis  --page-cache-redis-server='valkey'  --page-cache-redis-port=6379"
                     '''
                 }
             }
