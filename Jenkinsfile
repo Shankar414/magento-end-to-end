@@ -132,7 +132,6 @@ cd /var/www/html && php bin/magento setup:install  \
    docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento setup:upgrade'
    docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento setup:di:compile'
    docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento indexer:reindex'
-   docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento setup:static-content:deploy'
    docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento cache:flush'
                     '''
                 }
