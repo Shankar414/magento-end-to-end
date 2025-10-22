@@ -51,6 +51,9 @@ pipeline {
             sudo chmod -R 770 "/home/$PROJECT_NAME/$PROJECT_NAME-$PROJECT_ENVIRONMENT"
 
         '''
+        sh '''
+            git config --global --add safe.directory /home/striff/striff-dev
+        '''
         dir("/home/${env.PROJECT_NAME}/${env.PROJECT_NAME}-${env.PROJECT_ENVIRONMENT}") {
             git branch: "${env.GIT_BRANCH}", url: "${env.GIT_URL}"
         }
