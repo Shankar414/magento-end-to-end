@@ -122,6 +122,12 @@ cd /var/www/html && php bin/magento setup:install  \
  --page-cache=redis \
  --page-cache-redis-server="redis" \
  --page-cache-redis-port=6379"
+   docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth'
+   docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento setup:upgrade'
+   docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento setup:di:compile'
+   docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento indexer:reindex'
+   docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento setup:static-content:deploy'
+   docker compose exec php-fpm bash -lc 'cd /var/www/html && php bin/magento cache:flush'
                     '''
                 }
             }
